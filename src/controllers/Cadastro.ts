@@ -25,6 +25,22 @@ export const Cadastro = async (req: Request, res: Response) => {
     }
 }
 
-export const Login = async() =>{
-    
+export const Login = async (req: Request, res: Response) => {
+    try{
+        let nome:string = req.body.email;
+        const senha:string = req.body.senha;
+
+        let usuario = await User.findOne({email: nome});
+        
+        if(!usuario){
+            res.status(204).json('Email não cadastrado');
+        }
+        else{
+            const match = bcrypt.compare(senha, usuario?.senha as string)
+            res.status(200).json('result');
+        }        
+    }catch(error){
+        res.status(400)
+        console.log('Erro: ', error)
+    }
 }
