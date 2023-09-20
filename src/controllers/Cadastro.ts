@@ -36,8 +36,15 @@ export const Login = async (req: Request, res: Response) => {
             res.status(204).json('Email não cadastrado');
         }
         else{
-            const match = bcrypt.compare(senha, usuario?.senha as string)
-            res.status(200).json('result');
+            const match = await bcrypt.compare(senha, usuario?.senha as string)
+            if(match)
+            {
+                res.status(200).json('passou');
+            }
+            else
+            {
+                res.status(401).json('Senha inválida!');
+            }
         }        
     }catch(error){
         res.status(400)
