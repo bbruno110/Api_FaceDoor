@@ -2,6 +2,10 @@ import User from "../models/user";
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 
+export const ping = async (req: Request, res: Response) => {
+    res.json('pong')
+}
+
 export const Cadastro = async (req: Request, res: Response) => {
     try{
         let nome:string = req.body.nome;
@@ -34,16 +38,19 @@ export const Login = async (req: Request, res: Response) => {
         
         if(!usuario){
             res.status(204).json('Email não cadastrado');
+            console.log('user ',usuario,' Email não cadastrado');
         }
         else{
             const match = await bcrypt.compare(senha, usuario?.senha as string)
             if(match)
             {
                 res.status(200).json('passou');
+                console.log('user ',usuario,' passou');
             }
             else
             {
                 res.status(401).json('Senha inválida!');
+                console.log('user ',usuario,' Senha inválida!');
             }
         }        
     }catch(error){
