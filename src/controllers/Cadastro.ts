@@ -1,6 +1,7 @@
-import User from "../models/user";
+import user from "../models/user";
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
+import { generateToken } from "../config/passport";
 
 export const ping = async (req: Request, res: Response) => {
     res.json('pong')
@@ -12,12 +13,12 @@ export const Cadastro = async (req: Request, res: Response) => {
         const senha:string = req.body.senha;
         const salt = bcrypt.genSaltSync(5);
         const hash = bcrypt.hashSync(senha as string, salt);
-        let usuario = await User.findOne({email: nome});
+        let usuario = await user.findOne({email: nome});
         if(usuario){
             res.status(204).json('Já existe usuário com esse email cadastrado.');
         }
         else{
-            let newUser = new User();
+            let newUser = new user();
             newUser.email = nome;
             newUser.senha= hash;
             let result = await newUser.save();
@@ -34,7 +35,7 @@ export const Login = async (req: Request, res: Response) => {
         let nome:string = req.body.email;
         const senha:string = req.body.senha;
 
-        let usuario = await User.findOne({email: nome});
+        const usuario = await user.findOne({email: nome});
         
         if(!usuario){
             res.status(204).json('Email não cadastrado');
@@ -44,7 +45,10 @@ export const Login = async (req: Request, res: Response) => {
             const match = await bcrypt.compare(senha, usuario?.senha as string)
             if(match)
             {
-                res.status(200).json('passou');
+                const token = generateToken({ id: usuario.email })
+                usuario.token = token;
+                await usuario.save();
+                res.status(200).json(usuario);
                 console.log('user ',usuario,' passou');
             }
             else

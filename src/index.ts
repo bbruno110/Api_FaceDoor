@@ -2,6 +2,7 @@ import express, { ErrorRequestHandler, Request, Response } from 'express';
 import { mongoConnect } from './database/mongo';
 import cors from 'cors';
 import path from 'path';
+import passport from 'passport';
 import { MulterError } from 'multer';
 import dotenv from 'dotenv';
 import router from './routes/routes';
@@ -15,6 +16,7 @@ server.use(express.json());
 server.use(cors());
 server.use(express.urlencoded({ extended: true }));
 server.use(express.static(path.join(__dirname, "/public")));
+server.use(passport.initialize());
 server.use(router);
 server.use((req:Request, res:Response)=>{
     res.status(404);
@@ -38,5 +40,5 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
         })
     }
 }
-
+server.use(errorHandler);
 server.listen(8081);

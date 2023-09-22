@@ -3,7 +3,7 @@ import { Schema, model, Model, connection } from "mongoose";
 type UserType = {
     email: string,
     senha: string,
-    token:string,
+    token?:string,
 }
 
 const schema = new Schema<UserType>({
@@ -12,7 +12,7 @@ const schema = new Schema<UserType>({
     token: String,
 })
 
-const modelName: string = 'User';
+const modelName: string = 'user';
 
 
 export default (connection && connection.models[modelName]) ? connection.models[modelName] as Model<UserType> : model<UserType>(modelName, schema);
