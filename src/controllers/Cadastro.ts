@@ -30,7 +30,9 @@ export const Cadastro = async (req: Request, res: Response) => {
             const _id = lastUser ? lastUser._id.valueOf() + 1 : 1;
 
             let newUser = new user_tb();
+            
             newUser._id = _id;
+            newUser.caminho = '';
             newUser.email = nome;
             newUser.senha= hash;
             let result = await newUser.save();
@@ -59,8 +61,7 @@ export const Login = async (req: Request, res: Response) => {
             if(match)
             {
                 const token = generateToken({ email: usuario.email })
-                usuario.token = token;
-                usuario.caminho = '';
+                usuario.token = token; 
                 console.log(token)
                 await usuario.save();
                 res.status(200).json(usuario);
