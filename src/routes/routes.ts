@@ -37,6 +37,7 @@ router.route('/login').post(home.Login);
 router.route('/verify').get(privateRoute , home.verify);
 router.route('/all').get(privateRoute, home.loadUser);
 router.route('/images/:filename').get(home.ImageView);
+router.route('/download').get(home.downloadImg);
 
 router.route('/upload').post(privateRoute, upload.single('avatar'), home.uploadFile);
 

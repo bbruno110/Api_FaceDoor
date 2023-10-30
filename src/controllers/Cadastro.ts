@@ -1,6 +1,7 @@
 import user_tb from "../models/user_tb";
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
+import archiver from "archiver";
 import { generateToken } from "../config/passport";
 import sharp from "sharp";
 import path from 'path';
@@ -133,5 +134,51 @@ export const ImageView = async(req:Request, res:Response)=>{
         } else {
             res.sendFile(filepath);
         }
+    });
+};
+
+export const downloadImg = async(req: Request, res: Response) => {
+    const filepath = path.join(__dirname, '..', '..', 'public', 'media');
+    fs.readdir(filepath, (err, files) => {
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        }
+
+        var archive = archiver('zip', {
+            zlib: { level: 9 } // Sets the compression level.
+        });
+
+        // This event is fired when the data source is drained no matter what was the data source.
+        // It is not part of this library but rather from the NodeJS Stream API.
+        // @see: https://nodejs.org/api/stream.html#stream_event_drain
+        res.on('drain', function() {
+            console.log('drain', archive.pointer());
+            archive.resume();
+        });
+
+        // good practice to catch warnings (ie stat failures and other non-blocking errors)
+        archive.on('warning', function(err) {
+            if (err.code === 'ENOENT') {
+                // log warning
+            } else {
+                // throw error
+                throw err;
+            }
+        });
+
+        // good practice to catch this error explicitly
+        archive.on('error', function(err) {
+            throw err;
+        });
+
+        // pipe archive data to the response
+        archive.pipe(res);
+
+        files.forEach((file) => {
+            var fileLocation = path.join(filepath, file);
+            archive.file(fileLocation, { name: file });
+        });
+
+        archive.finalize();
     });
 };
