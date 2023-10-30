@@ -7,7 +7,7 @@ import path  from 'path'
 const storageConfig = multer.diskStorage(
     {
         destination: (req, file, cb) => {
-            cb(null, path.resolve(__dirname, "..", "tmp"));
+            cb(null, path.resolve(__dirname, ".."));
         },
         filename: (req,file,cb) => {
             let randomName = Math.floor(Math.random() * 999999)

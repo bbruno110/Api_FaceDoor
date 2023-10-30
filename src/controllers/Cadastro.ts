@@ -128,7 +128,7 @@ export const ImageView = async(req:Request, res:Response)=>{
     console.log(filepath)
     fs.access(filepath, fs.constants.F_OK, (err) => {
         if (err) {
-            console.error('File does not exist');
+            console.error(err);
             res.status(404).send('File does not exist');
         } else {
             res.sendFile(filepath);
