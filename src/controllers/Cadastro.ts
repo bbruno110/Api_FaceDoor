@@ -53,7 +53,7 @@ export const Login = async (req: Request, res: Response) => {
         const usuario = await user_tb.findOne({email: nome});
         
         if(!usuario){
-            res.status(204).json('Email não cadastrado');
+            res.status(561).json('Email não cadastrado');
             console.log('user ',usuario,' Email não cadastrado');
         }
         else{
