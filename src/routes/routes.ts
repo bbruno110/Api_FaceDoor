@@ -35,7 +35,8 @@ router.route('/ping').get(privateRoute, home.ping);
 router.route('/register').post(home.Cadastro);
 router.route('/login').post(home.Login);
 router.route('/verify').get(privateRoute , home.verify);
-router.route('/all').get(privateRoute , home.loadUser);
+router.route('/all').get(privateRoute, home.loadUser);
+router.route('/images/:filename').get(home.ImageView);
 
 router.route('/upload').post(privateRoute, upload.single('avatar'), home.uploadFile);
 
