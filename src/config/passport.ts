@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 import { Response, Request, NextFunction } from "express";
 import { ExtractJwt, Strategy as JWTStrategy } from "passport-jwt";
 import  jwt  from "jsonwebtoken";
-import user from "../models/user";
+import user_tb from "../models/user_tb";
+import { UserType } from "../models/user_tb";
 
 dotenv.config();
 
@@ -14,8 +15,8 @@ const options = {
 };
 
 passport.use(new JWTStrategy(options, async(payload, done) =>{
-    const result = await user.findOne({email: payload.email});
-    if(result){
+    const user = await user_tb.findOne({email: payload.email});
+    if(user){
         return done(null, user);
     }
     else
@@ -25,12 +26,13 @@ passport.use(new JWTStrategy(options, async(payload, done) =>{
 }));
 
 export const generateToken = (data: object) =>{
-    return jwt.sign(data, process.env.JWT_SECRET as string);
+    return jwt.sign(data, process.env.JWT_SECRET as string, {expiresIn: /*"300s"*/ '10h'});
 }
 
 export const privateRoute = (req: Request, res: Response, next: NextFunction) =>{
-    passport.authenticate('jwt', (err:any, user:any)=>{
+    passport.authenticate('jwt', (err:any, user: UserType)=>{
         req.user = user;
+        console.log(user)
         return user ? next() : next(notAuthorizedJson);
     })(req,res,next)
 }

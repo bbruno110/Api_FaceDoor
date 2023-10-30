@@ -1,4 +1,4 @@
-import user from "../models/user";
+import user_tb from "../models/user_tb";
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 import { generateToken } from "../config/passport";
@@ -11,14 +11,15 @@ export const Cadastro = async (req: Request, res: Response) => {
     try{
         let nome:string = req.body.nome;
         const senha:string = req.body.senha;
+        console.log(nome)
         const salt = bcrypt.genSaltSync(5);
         const hash = bcrypt.hashSync(senha as string, salt);
-        let usuario = await user.findOne({email: nome});
+        let usuario = await user_tb.findOne({email: nome});
         if(usuario){
             res.status(204).json('Já existe usuário com esse email cadastrado.');
         }
         else{
-            let newUser = new user();
+            let newUser = new user_tb();
             newUser.email = nome;
             newUser.senha= hash;
             let result = await newUser.save();
@@ -34,8 +35,9 @@ export const Login = async (req: Request, res: Response) => {
     try{
         let nome:string = req.body.email;
         const senha:string = req.body.senha;
+        console.log(nome)
 
-        const usuario = await user.findOne({email: nome});
+        const usuario = await user_tb.findOne({email: nome});
         
         if(!usuario){
             res.status(204).json('Email não cadastrado');
@@ -61,4 +63,10 @@ export const Login = async (req: Request, res: Response) => {
         res.status(400)
         console.log('Erro: ', error)
     }
+}
+
+export const verify = async(req:Request, res:Response)=>{
+
+    const token = req.headers.authorization
+    res.json(token)
 }
