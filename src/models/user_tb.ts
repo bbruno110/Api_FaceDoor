@@ -4,12 +4,14 @@ export type UserType = {
     email: string,
     senha: string,
     token?:string,
+    caminho?:string
 }
 
 const schema = new Schema<UserType>({
     email: { type: String, required: true},
     senha: { type: String, required: true},
     token: String,
+    caminho: String
 })
 
 const modelName: string = 'user';
