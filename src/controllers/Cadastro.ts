@@ -224,7 +224,7 @@ export const atualizar = async (req: Request, res: Response) => {
                             const hash = bcrypt.hashSync(password as string, salt);
                             usuario.senha = hash
                         }
-                        usuario.caminho = `${usuario?.nome.split('@')[0]}.png`
+                        usuario.caminho = `${nome}.png`
                         await usuario.save()
                     }
                     await unlink(req.file.path)
