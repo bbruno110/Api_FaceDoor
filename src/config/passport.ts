@@ -26,7 +26,7 @@ passport.use(new JWTStrategy(options, async(payload, done) =>{
 }));
 
 export const generateToken = (data: object) =>{
-    return jwt.sign(data, process.env.JWT_SECRET_KEY as string, {expiresIn: /*"300s"*/ '60h'});
+    return jwt.sign(data, process.env.JWT_SECRET_KEY as string, {expiresIn: "1h"});
 }
 
 export const privateRoute = (req: Request, res: Response, next: NextFunction) =>{

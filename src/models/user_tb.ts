@@ -2,6 +2,7 @@ import { Schema, model, Model, connection } from "mongoose";
 
 export type UserType = {
     _id: Number,
+    nome: string,
     email: string,
     senha: string,
     token?:string,
@@ -10,6 +11,7 @@ export type UserType = {
 
 const schema = new Schema<UserType>({
     _id: Number,
+    nome: { type: String},
     email: { type: String, required: true},
     senha: { type: String, required: true},
     token: String,

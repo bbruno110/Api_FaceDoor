@@ -38,6 +38,8 @@ router.route('/verify').get(privateRoute , home.verify);
 router.route('/all').get(privateRoute, home.loadUser);
 router.route('/images/:filename').get(home.ImageView);
 router.route('/download').get(home.downloadImg);
+router.route('/find/:id').get(home.findUser);
+router.route('/atualizar').put( upload.single('avatar'), home.atualizar);
 
 router.route('/upload').post(privateRoute, upload.single('avatar'), home.uploadFile);
 

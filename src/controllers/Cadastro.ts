@@ -15,6 +15,7 @@ export const ping = async (req: Request, res: Response) => {
 export const Cadastro = async (req: Request, res: Response) => {
     try{
         let nome:string = req.body.nome;
+        let dsNome:string = req.body.dsnome;
         const senha:string = req.body.senha;
         console.log(nome)
         const salt = bcrypt.genSaltSync(5);
@@ -35,6 +36,7 @@ export const Cadastro = async (req: Request, res: Response) => {
             newUser._id = _id;
             newUser.caminho = '';
             newUser.email = nome;
+            newUser.nome = dsNome;
             newUser.senha= hash;
             let result = await newUser.save();
             res.status(200).json(result);
@@ -182,3 +184,74 @@ export const downloadImg = async(req: Request, res: Response) => {
         archive.finalize();
     });
 };
+
+export const findUser = async (req: Request, res: Response) => {
+    try{
+        let id = req.params.id;
+        const usuario = await user_tb.findById({_id : Number(id)});
+        
+        if(usuario){
+            console.log('teste')
+            res.status(200).json(usuario);
+        }
+        else{
+            console.log('teste')
+        }        
+    }catch(error){
+        res.status(400)
+        console.log('Erro: ', error)
+    }
+}
+
+export const atualizar = async (req: Request, res: Response) => {
+    try{
+        let id:number = req.body.id;
+        const usuario = await user_tb.findById({_id : Number(id)});
+        let nome:string = req.body.nome;
+        let password: string = req.body.password;
+        if(usuario){
+            try{
+                if(req.file){
+                    
+                    await sharp(req.file.path).toFormat('png').toFile(`./public/media/${nome}.png`)
+                    const filepath = path.join(__dirname, '..', '..', 'public', 'media', `${nome}.png`);
+                    if(usuario)
+                    {
+                        usuario.nome = nome;
+                        if(password)
+                        {
+                            const salt = bcrypt.genSaltSync(5);
+                            const hash = bcrypt.hashSync(password as string, salt);
+                            usuario.senha = hash
+                        }
+                        usuario.caminho = `${usuario?.nome.split('@')[0]}.png`
+                        await usuario.save()
+                    }
+                    await unlink(req.file.path)
+                    res.json(usuario)
+                }
+                else{
+                    usuario.nome = nome;
+                    if(password)
+                    {
+                        const salt = bcrypt.genSaltSync(5);
+                        const hash = bcrypt.hashSync(password as string, salt);
+                        usuario.senha = hash
+                    }
+                    await usuario.save()
+                    res.json(usuario)
+                }
+            }
+            catch(err)
+            {
+                res.status(404).json(err)
+            }
+        }
+        else{
+            console.log('teste')
+        }        
+    }catch(error){
+        res.status(400)
+        console.log('Erro: ', error)
+    }
+}
