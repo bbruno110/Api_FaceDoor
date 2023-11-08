@@ -15,12 +15,16 @@ const options = {
 };
 
 passport.use(new JWTStrategy(options, async(payload, done) =>{
-    const user = await user_tb.findOne({email: payload.email});
-    if(user){
-        return done(null, user);
-    }
-    else
-    {
+    try{
+        const user = await user_tb.findOne({email: payload.email});
+        if(user){
+            return done(null, user);
+        }
+        else
+        {
+            return done(notAuthorizedJson, false);
+        }
+    }catch(err){
         return done(notAuthorizedJson, false);
     }
 }));

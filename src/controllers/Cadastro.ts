@@ -208,6 +208,7 @@ export const atualizar = async (req: Request, res: Response) => {
         let id:number = req.body.id;
         const usuario = await user_tb.findById({_id : Number(id)});
         let nome:string = req.body.nome;
+        let email:string = req.body.email;
         let password: string = req.body.password;
         if(usuario){
             try{
@@ -218,6 +219,7 @@ export const atualizar = async (req: Request, res: Response) => {
                     if(usuario)
                     {
                         usuario.nome = nome;
+                        usuario.email = email;
                         if(password)
                         {
                             const salt = bcrypt.genSaltSync(5);
@@ -232,6 +234,7 @@ export const atualizar = async (req: Request, res: Response) => {
                 }
                 else{
                     usuario.nome = nome;
+                    usuario.email = email;
                     if(password)
                     {
                         const salt = bcrypt.genSaltSync(5);
