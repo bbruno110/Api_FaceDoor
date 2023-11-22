@@ -6,6 +6,7 @@ import { generateToken } from "../config/passport";
 import sharp from "sharp";
 import path from 'path';
 import fs from 'fs';
+import * as jimp from 'jimp';
 import { unlink } from "fs/promises";
 
 export const ping = async (req: Request, res: Response) => {
@@ -83,7 +84,6 @@ export const Login = async (req: Request, res: Response) => {
 }
 
 export const verify = async(req:Request, res:Response)=>{
-
     const token = req.headers.authorization
     res.json(token)
 }
@@ -213,9 +213,20 @@ export const atualizar = async (req: Request, res: Response) => {
         if(usuario){
             try{
                 if(req.file){
-                    
-                    await sharp(req.file.path).toFormat('png').toFile(`./public/media/${nome}.png`)
                     const filepath = path.join(__dirname, '..', '..', 'public', 'media', `${nome}.png`);
+                    
+                    // Verifica se o arquivo existe e o exclui
+                    if(fs.existsSync(filepath)){
+                        console.log('Excluindo arquivo existente...');
+                        await fs.promises.unlink(filepath);
+                    }
+                    
+                    console.log('Tratando a imagem...');
+                    const image = await jimp.read(req.file.path);
+                    await image.writeAsync(req.file.path);
+                    
+                    console.log('Processando nova imagem...');
+                    await sharp(req.file.path).toFormat('png').toFile(filepath)
                     if(usuario)
                     {
                         usuario.nome = nome;
@@ -227,9 +238,12 @@ export const atualizar = async (req: Request, res: Response) => {
                             usuario.senha = hash
                         }
                         usuario.caminho = `${nome}.png`
+                        console.log('Salvando usuário...');
                         await usuario.save()
                     }
-                    await unlink(req.file.path)
+                    //console.log('Excluindo arquivo temporário...');
+                    //await fs.promises.unlink(req.file.path) // Exclui o arquivo temporário
+                    console.log('Enviando resposta...');
                     res.json(usuario)
                 }
                 else{
@@ -241,20 +255,58 @@ export const atualizar = async (req: Request, res: Response) => {
                         const hash = bcrypt.hashSync(password as string, salt);
                         usuario.senha = hash
                     }
+                    console.log('Salvando usuário...');
                     await usuario.save()
+                    console.log('Enviando resposta...');
                     res.json(usuario)
                 }
             }
             catch(err)
             {
+                console.log('Erro ao processar a imagem ou salvar o usuário:', err);
                 res.status(404).json(err)
             }
         }
         else{
-            console.log('teste')
+            console.log('Usuário não encontrado');
         }        
     }catch(error){
+        console.log('Erro ao processar a solicitação:', error);
         res.status(400)
-        console.log('Erro: ', error)
+    }
+}
+
+export const deletar = async (req: Request, res: Response) => {
+    try {
+        let email: string = req.body.email;
+        const usuario = await user_tb.findOne({email: email});
+        if (usuario) {
+            try {
+                let caminho = usuario.caminho
+                if(caminho)
+                {
+                    const filepath = path.join(__dirname, '..', '..', 'public', 'media', caminho);
+                    
+                    // Verifica se o arquivo existe e o exclui
+                    if (fs.existsSync(filepath)) {
+                        console.log('Excluindo arquivo existente...');
+                        await fs.promises.unlink(filepath);
+                    }
+                }
+                console.log('Excluindo usuário...');
+                await user_tb.findOneAndDelete({email: email});
+                console.log('Enviando resposta...');
+                res.json({message: 'Usuário excluído com sucesso'});
+            } catch (err) {
+                console.log('Erro ao excluir o usuário:', err);
+                res.status(404).json(err);
+            }
+        } else {
+            console.log('Usuário não encontrado');
+            res.status(404).json({message: 'Usuário não encontrado'});
+        }
+    } catch (error) {
+        console.log('Erro ao processar a solicitação:', error);
+        res.status(400);
     }
 }

@@ -16,15 +16,23 @@ const options = {
 
 passport.use(new JWTStrategy(options, async(payload, done) =>{
     try{
-        const user = await user_tb.findOne({email: payload.email});
-        if(user){
-            return done(null, user);
+        if(payload.email)
+        {
+            const user = await user_tb.findOne({email: payload.email});
+            if(user){
+                return done(null, user);
+            }
+            else
+            {
+                return done(notAuthorizedJson, false);
+            }
         }
         else
         {
             return done(notAuthorizedJson, false);
         }
     }catch(err){
+        console.log('deu ruim')
         return done(notAuthorizedJson, false);
     }
 }));
@@ -35,8 +43,12 @@ export const generateToken = (data: object) =>{
 
 export const privateRoute = (req: Request, res: Response, next: NextFunction) =>{
     passport.authenticate('jwt', (err:any, user: UserType)=>{
-        req.user = user.email;
-        return user ? next() : next(notAuthorizedJson);
+        if (user) {
+            req.user = user.email;
+            return next();
+        } else {
+            return next(notAuthorizedJson);
+        }
     })(req,res,next)
 }
 

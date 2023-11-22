@@ -18,15 +18,6 @@ const storageConfig = multer.diskStorage(
 
 const upload = multer({
     storage: storageConfig,
-    fileFilter:(req,file,cb) =>{
-        const allowed: string[] = ['image/jpg', 'image/png', 'image/jpeg']
-        if(allowed.includes(file.mimetype)){
-            cb(null, true)
-        }
-        else{
-            cb(null, false)
-        }
-    }
 });
 
 const router = Router();
@@ -34,11 +25,12 @@ const router = Router();
 router.route('/ping').get(privateRoute, home.ping);
 router.route('/register').post(home.Cadastro);
 router.route('/login').post(home.Login);
-router.route('/verify').get(privateRoute , home.verify);
+router.route('/verify').get(privateRoute, home.verify);
 router.route('/all').get(privateRoute, home.loadUser);
 router.route('/images/:filename').get(home.ImageView);
 router.route('/download').get(home.downloadImg);
 router.route('/find/:id').get(home.findUser);
+router.route('/del').delete(privateRoute, home.deletar);
 router.route('/atualizar').put( upload.single('avatar'), home.atualizar);
 
 router.route('/upload').post(privateRoute, upload.single('avatar'), home.uploadFile);
