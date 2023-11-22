@@ -35,10 +35,21 @@ export const Cadastro = async (req: Request, res: Response) => {
             let newUser = new user_tb();
             
             newUser._id = _id;
-            newUser.caminho = '';
             newUser.email = nome;
             newUser.nome = dsNome;
             newUser.senha= hash;
+
+            // Processar a imagem, se houver
+            if(req.file){
+                const filepath = path.join(__dirname, '..', '..', 'public', 'media', `${dsNome}.png`);
+                
+                console.log('Processando nova imagem...');
+                await sharp(req.file.path).toFormat('png').toFile(filepath)
+                
+                newUser.caminho = `${dsNome}.png`
+            }
+
+            console.log('Salvando usuário...');
             let result = await newUser.save();
             res.status(200).json(result);
         }      
@@ -212,6 +223,12 @@ export const atualizar = async (req: Request, res: Response) => {
         let password: string = req.body.password;
         if(usuario){
             try{
+                // Verificar se o email já existe
+                const emailExists = await user_tb.findOne({email: email});
+                if(emailExists && String(emailExists._id) !== String(usuario._id)){
+                    console.log('Email já existe');
+                    return res.status(400).json({error: 'Email já existe'});
+                }
                 if(req.file){
                     const filepath = path.join(__dirname, '..', '..', 'public', 'media', `${nome}.png`);
                     
@@ -241,8 +258,6 @@ export const atualizar = async (req: Request, res: Response) => {
                         console.log('Salvando usuário...');
                         await usuario.save()
                     }
-                    //console.log('Excluindo arquivo temporário...');
-                    //await fs.promises.unlink(req.file.path) // Exclui o arquivo temporário
                     console.log('Enviando resposta...');
                     res.json(usuario)
                 }

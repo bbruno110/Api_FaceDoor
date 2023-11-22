@@ -23,7 +23,7 @@ const upload = multer({
 const router = Router();
 
 router.route('/ping').get(privateRoute, home.ping);
-router.route('/register').post(home.Cadastro);
+router.route('/register').post(upload.single('avatar'), home.Cadastro);
 router.route('/login').post(home.Login);
 router.route('/verify').get(privateRoute, home.verify);
 router.route('/all').get(privateRoute, home.loadUser);
